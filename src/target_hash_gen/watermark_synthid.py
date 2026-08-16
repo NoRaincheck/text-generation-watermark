@@ -105,7 +105,5 @@ class TournamentWatermarkGenerator(WatermarkGenerator):
         if n == 0:
             return 0.0
         frac = sum(g_score(s, t, layer) for t in ids for layer in range(self.m)) / n
-        z = (frac - GREEN_FRACTION) / np.sqrt(
-            GREEN_FRACTION * (1 - GREEN_FRACTION) / n
-        )
+        z = (frac - GREEN_FRACTION) / np.sqrt(GREEN_FRACTION * (1 - GREEN_FRACTION) / n)
         return float(z)

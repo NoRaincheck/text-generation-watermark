@@ -63,19 +63,13 @@ def colored_text(
 
 def split_starts(tokens: list[int], tok) -> list[int]:
     """Token indices (1-based) of sentence starts, skipping too-short tails."""
-    return [
-        i + 1
-        for i, t in enumerate(tokens)
-        if tok.decode([t]) in (".", "!", "?") and len(tokens[i + 1 :]) >= 16
-    ]
+    return [i + 1 for i, t in enumerate(tokens) if tok.decode([t]) in (".", "!", "?") and len(tokens[i + 1 :]) >= 16]
 
 
 def main(argv: list[str] | None = None) -> None:
     import argparse
 
-    ap = argparse.ArgumentParser(
-        description="Invisible content hash via SynthID-Text-style tournament"
-    )
+    ap = argparse.ArgumentParser(description="Invisible content hash via SynthID-Text-style tournament")
     ap.add_argument("--prompt", type=str, default="What is gravity?")
     ap.add_argument("--tokens", type=int, default=200)
     ap.add_argument("--top-k", type=int, default=20)
@@ -106,9 +100,7 @@ def main(argv: list[str] | None = None) -> None:
             "content": args.prompt,
         },
     ]
-    prompt = tok.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
-    )
+    prompt = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     prompt_ids = tok(prompt, add_special_tokens=False)["input_ids"]
 
     gen_wm = TournamentWatermarkGenerator(
@@ -169,9 +161,7 @@ def main(argv: list[str] | None = None) -> None:
         ("negative-seed", neg),
         ("plain", plain),
     ]:
-        print(
-            f"{Fore.CYAN}\n=== hash across splits of {name} text ===" + Style.RESET_ALL
-        )
+        print(f"{Fore.CYAN}\n=== hash across splits of {name} text ===" + Style.RESET_ALL)
         print(f"{'from tok':>8} | {'seed':<32}")
         for st in split_starts(text, tok):
             span = text[st:]

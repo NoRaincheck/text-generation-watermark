@@ -43,11 +43,7 @@ def load_tokenizer(model_id: str, local_files_only: bool = True):
 
 def _nucleus(logits: np.ndarray, top_k: int, top_p: float) -> np.ndarray:
     """Top-k then nucleus filter; returns the surviving token indices."""
-    indices = (
-        np.argpartition(logits, -top_k)[-top_k:]
-        if top_k > 0
-        else np.arange(len(logits))
-    )
+    indices = np.argpartition(logits, -top_k)[-top_k:] if top_k > 0 else np.arange(len(logits))
     order = np.argsort(logits[indices])[::-1]
     soft = np.exp(logits[indices[order]] - logits[indices[order]].max())
     soft /= soft.sum()

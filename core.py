@@ -57,6 +57,18 @@ def _nucleus(logits: np.ndarray, top_k: int, top_p: float) -> np.ndarray:
     return indices[order][mask]
 
 
+def g_score(seed: str, token_id: int, salt: str | None = None) -> bool:
+    """Score (0/1) assigned to a token by a keyed blake2b hash.
+
+    If *salt* is provided the key is ``f"{seed}_{salt}"`` so each
+    watermarking layer gets an independent hash function.
+    """
+    key = f"{seed}_{salt}".encode()[:64] if salt is not None else seed.encode()[:64]
+    h = hashlib.blake2b(digest_size=8, key=key)
+    h.update(int(token_id).to_bytes(4, "big"))
+    return bool(h.digest()[0] & 1)
+
+
 def _dist(logits: np.ndarray, cand: np.ndarray) -> np.ndarray:
     """Softmax probabilities over the candidate tokens in `cand`."""
     soft = np.exp(logits[cand] - logits[cand].max())

@@ -29,30 +29,16 @@ scores ~0.5; tournament output is biased toward higher g-values, so the z-score
 against the 0.5 null grows with sqrt(m*len).
 """
 
-import hashlib
-
 import numpy as np
 from colorama import Fore, init
 
-from core import Model, _dist, _nucleus, _rng_for, load_tokenizer
+from core import Model, _dist, _nucleus, _rng_for, g_score, load_tokenizer
 
 init(autoreset=True)
 
 MODEL_ID = "LiquidAI/LFM2.5-350M"
 DEFAULT_SEED = "target-hash-gen demo key"
 EOS_ID = 7
-
-
-def g_score(seed: str, layer: int, token_id: int) -> bool:
-    """Score (0/1) assigned to a token by watermarking function layer `layer`.
-
-    Layer n derives its key from "{seed}_layer{n}", so the m functions are
-    independent pseudorandom hashes. Depends only on (key, layer, token_id),
-    never on position or context, so the watermark survives splitting."""
-    key = f"{seed}_layer{layer}".encode()[:64]
-    h = hashlib.blake2b(digest_size=8, key=key)
-    h.update(int(token_id).to_bytes(4, "big"))
-    return bool(h.digest()[0] & 1)
 
 
 def tournament_sample(
@@ -73,15 +59,13 @@ def tournament_sample(
     tournament."""
     probs = _dist(logits, cand)
     for layer in range(m):
-        g = np.array([g_score(seed, layer, int(t)) for t in cand], dtype=float)
+        g = np.array([g_score(seed, int(t), layer) for t in cand], dtype=float)
         g_mass = float((g * probs).sum())
         if k == 2:
             probs = probs * (1.0 + g - g_mass)
         else:
             coeff_not_in_g = (1.0 - g_mass) ** (k - 1)
-            coeff_in_g = (
-                (1.0 - (1.0 - g_mass) ** k) / g_mass if g_mass > 0 else 1.0
-            )
+            coeff_in_g = (1.0 - (1.0 - g_mass) ** k) / g_mass if g_mass > 0 else 1.0
             probs = probs * np.where(g > 0, coeff_in_g, coeff_not_in_g)
         probs /= probs.sum()
     return int(rng.choice(cand, p=probs))
@@ -126,7 +110,7 @@ def check_hash(ids: list[int], seed: str, m: int = 5) -> str:
     n = len(ids) * m
     if n == 0:
         return "Hash(0/0 frac=0.000 z=+0.0)"
-    ones = sum(g_score(seed, layer, t) for t in ids for layer in range(m))
+    ones = sum(g_score(seed, t, layer) for t in ids for layer in range(m))
     frac = ones / n
     z = (frac - 0.5) / np.sqrt(0.25 / n)
     return f"Hash({ones}/{n} frac={frac:.3f} z={z:+.1f})"
@@ -136,7 +120,7 @@ def colored_hash(ids: list[int], seed: str, m: int = 5) -> str:
     """check_hash() colorized: green when the watermark is detected (z >= 1.65),
     red when it isn't."""
     n = len(ids) * m
-    ones = sum(g_score(seed, layer, t) for t in ids for layer in range(m)) if ids else 0
+    ones = sum(g_score(seed, t, layer) for t in ids for layer in range(m)) if ids else 0
     z = (ones / n - 0.5) / np.sqrt(0.25 / n) if n else 0.0
     return (Fore.GREEN if z >= 1.65 else Fore.RED) + check_hash(ids, seed, m)
 
@@ -160,10 +144,20 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--tokens", type=int, default=200)
     ap.add_argument("--top-k", type=int, default=20)
     ap.add_argument("--top-p", type=float, default=0.95)
-    ap.add_argument("--layers", type=int, default=5, metavar="M",
-                    help="tournament layers / watermarking functions (default 5)")
-    ap.add_argument("--competitors", type=int, default=2, metavar="K",
-                    help="tokens per match; 2 is non-distortionary, >2 stronger (default 2)")
+    ap.add_argument(
+        "--layers",
+        type=int,
+        default=5,
+        metavar="M",
+        help="tournament layers / watermarking functions (default 5)",
+    )
+    ap.add_argument(
+        "--competitors",
+        type=int,
+        default=2,
+        metavar="K",
+        help="tokens per match; 2 is non-distortionary, >2 stronger (default 2)",
+    )
     ap.add_argument("--seed", default=DEFAULT_SEED)
     ap.add_argument("--wrong-seed", default="negative key")
     args = ap.parse_args(argv)
@@ -206,10 +200,18 @@ def main(argv: list[str] | None = None) -> None:
     print(tok.decode(plain, skip_special_tokens=True))
 
     print(Fore.CYAN + "\n=== detection ===")
-    print(f"{Fore.GREEN}watermarked, correct key  : {colored_hash(wm, args.seed, args.layers)}")
-    print(f"{Fore.RED}watermarked, wrong key    : {colored_hash(wm, args.wrong_seed, args.layers)}")
-    print(f"{Fore.RED}negative-seed, correct key: {colored_hash(neg, args.seed, args.layers)}")
-    print(f"{Fore.RED}plain, correct key        : {colored_hash(plain, args.seed, args.layers)}")
+    print(
+        f"{Fore.GREEN}watermarked, correct key  : {colored_hash(wm, args.seed, args.layers)}"
+    )
+    print(
+        f"{Fore.RED}watermarked, wrong key    : {colored_hash(wm, args.wrong_seed, args.layers)}"
+    )
+    print(
+        f"{Fore.RED}negative-seed, correct key: {colored_hash(neg, args.seed, args.layers)}"
+    )
+    print(
+        f"{Fore.RED}plain, correct key        : {colored_hash(plain, args.seed, args.layers)}"
+    )
 
     for name, text in [
         ("watermarked", wm),

@@ -9,12 +9,10 @@ A Watermark for Large Language Models (ICML 2023)
 https://arxiv.org/pdf/2301.10226
 """
 
-import hashlib
-
 import numpy as np
 from colorama import Fore, init
 
-from core import Model, _nucleus, _rng_for, load_tokenizer
+from core import Model, _nucleus, _rng_for, g_score, load_tokenizer
 
 init(autoreset=True)
 
@@ -22,13 +20,6 @@ MODEL_ID = "LiquidAI/LFM2.5-350M"
 DEFAULT_SEED = "target-hash-gen demo key"
 EOS_ID = 7
 GREEN_FRACTION = 0.5
-
-
-def color(seed: str, token_id: int) -> bool:
-    """Green (True) iff the token id hashes to a 1 bit under the secret seed."""
-    h = hashlib.blake2b(digest_size=8, key=seed.encode()[:64])
-    h.update(int(token_id).to_bytes(4, "big"))
-    return bool(h.digest()[0] & 1)
 
 
 def generate(
@@ -55,7 +46,7 @@ def generate(
         if seed is not None:
             best = cand[np.argmax(logits[cand])]
             near_eq = cand[logits[cand] >= logits[best] - eps]
-            green = np.array([color(seed, int(c)) for c in near_eq])
+            green = np.array([g_score(seed, int(c)) for c in near_eq])
             if near_eq.size > 1 and green.any():
                 boosted = logits[near_eq].copy()
                 boosted[green] += delta
@@ -76,7 +67,7 @@ def check_hash(ids: list[int], seed: str = DEFAULT_SEED) -> str:
     """Green fraction and z-score vs the expected 0.5, on any token span."""
     if not ids:
         return "Hash(0/0 frac=0.000 z=+0.0)"
-    green = sum(color(seed, t) for t in ids)
+    green = sum(g_score(seed, t) for t in ids)
     frac = green / len(ids)
     z = (frac - GREEN_FRACTION) / np.sqrt(
         GREEN_FRACTION * (1 - GREEN_FRACTION) / len(ids)
@@ -88,7 +79,7 @@ def colored_hash(ids: list[int], seed: str) -> str:
     """check_hash() colorized: green when the watermark is detected (z >= 3),
     red when it isn't."""
     n = len(ids) or 1
-    green = sum(color(seed, t) for t in ids) if ids else 0
+    green = sum(g_score(seed, t) for t in ids) if ids else 0
     z = (green / n - GREEN_FRACTION) / np.sqrt(
         GREEN_FRACTION * (1 - GREEN_FRACTION) / n
     )

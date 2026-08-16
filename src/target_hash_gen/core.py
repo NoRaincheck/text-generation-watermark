@@ -9,6 +9,10 @@ import numpy as np
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+MODEL_ID = "LiquidAI/LFM2.5-350M"
+DEFAULT_SEED = "default-seed"
+EOS_ID = 7
+
 
 def _rng_for(seed: str) -> np.random.Generator:
     """Deterministic generator derived from the watermark key string."""
@@ -71,6 +75,10 @@ def _dist(logits: np.ndarray, cand: np.ndarray) -> np.ndarray:
     return soft / soft.sum()
 
 
+_tok = load_tokenizer(MODEL_ID)
+_model = Model(MODEL_ID)
+
+
 class WatermarkGenerator:
     """Base class for watermark-aware text generation.
 
@@ -83,9 +91,9 @@ class WatermarkGenerator:
 
     def __init__(
         self,
-        model: Model,
-        vocab_size: int,
-        eos_id: int,
+        model: Model = _model,
+        vocab_size: int = _tok.vocab_size,
+        eos_id: int = EOS_ID,
         seed: str | None = None,
         top_k: int = 20,
         top_p: float = 0.95,
@@ -135,9 +143,9 @@ class GreedyGenerator(WatermarkGenerator):
 
     def __init__(
         self,
-        model: Model,
-        vocab_size: int,
-        eos_id: int,
+        model: Model = _model,
+        vocab_size: int = _tok.vocab_size,
+        eos_id: int = EOS_ID,
         top_k: int = 20,
         top_p: float = 0.95,
     ) -> None:

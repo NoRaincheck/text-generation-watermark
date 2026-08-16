@@ -11,11 +11,8 @@ https://arxiv.org/pdf/2301.10226
 
 import numpy as np
 
-from target_hash_gen.core import WatermarkGenerator, g_score
+from target_hash_gen.core import WatermarkGenerator, g_score, _model, _tok, EOS_ID
 
-MODEL_ID = "LiquidAI/LFM2.5-350M"
-DEFAULT_SEED = "target-hash-gen demo key"
-EOS_ID = 7
 GREEN_FRACTION = 0.5
 
 
@@ -24,15 +21,12 @@ class BoostWatermarkGenerator(WatermarkGenerator):
 
     def __init__(
         self,
-        model,
-        vocab_size: int,
-        eos_id: int,
         seed: str | None = None,
         top_k: int = 20,
         top_p: float = 0.95,
         delta: float = 1.0,
     ) -> None:
-        super().__init__(model, vocab_size, eos_id, seed, top_k, top_p)
+        super().__init__(seed=seed, top_k=top_k, top_p=top_p)
         self.delta = delta
 
     def _sample_with_watermark(self, logits: np.ndarray, cand: np.ndarray) -> int:

@@ -28,11 +28,8 @@ against the 0.5 null grows with sqrt(m*len).
 
 import numpy as np
 
-from target_hash_gen.core import WatermarkGenerator, g_score
+from target_hash_gen.core import WatermarkGenerator, g_score, _model, _tok, EOS_ID
 
-MODEL_ID = "LiquidAI/LFM2.5-350M"
-DEFAULT_SEED = "target-hash-gen demo key"
-EOS_ID = 7
 GREEN_FRACTION = 0.5
 
 
@@ -81,16 +78,13 @@ class TournamentWatermarkGenerator(WatermarkGenerator):
 
     def __init__(
         self,
-        model: Model,
-        vocab_size: int,
-        eos_id: int,
         seed: str | None = None,
         m: int = 5,
         k: int = 2,
         top_k: int = 20,
         top_p: float = 0.95,
     ) -> None:
-        super().__init__(model, vocab_size, eos_id, seed, top_k, top_p)
+        super().__init__(seed=seed, top_k=top_k, top_p=top_p)
         self.m = m
         self.k = k
 

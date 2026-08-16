@@ -8,14 +8,9 @@ Usage:
 
 from colorama import Fore, Style
 
-from target_hash_gen.core import Model, g_score, load_tokenizer
+from target_hash_gen.core import g_score, DEFAULT_SEED, _tok
 from target_hash_gen.greedy import GreedyGenerator
-from target_hash_gen.watermark import (
-    BoostWatermarkGenerator,
-    EOS_ID,
-    MODEL_ID,
-    DEFAULT_SEED,
-)
+from target_hash_gen.watermark import BoostWatermarkGenerator
 
 
 def colored_text(ids: list[int], tok, seed: str) -> str:
@@ -46,39 +41,28 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--wrong-seed", default="negative key")
     args = ap.parse_args(argv)
 
-    tok = load_tokenizer(MODEL_ID)
-    model = Model(MODEL_ID)
     messages = [
         {
             "role": "user",
             "content": args.prompt,
         },
     ]
-    prompt = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    prompt_ids = tok(prompt, add_special_tokens=False)["input_ids"]
+    prompt = _tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    prompt_ids = _tok(prompt, add_special_tokens=False)["input_ids"]
 
     gen_wm = BoostWatermarkGenerator(
-        model=model,
-        vocab_size=tok.vocab_size,
-        eos_id=EOS_ID,
         seed=args.seed,
         top_k=args.top_k,
         top_p=args.top_p,
         delta=args.delta,
     )
     gen_neg = BoostWatermarkGenerator(
-        model=model,
-        vocab_size=tok.vocab_size,
-        eos_id=EOS_ID,
         seed=args.wrong_seed,
         top_k=args.top_k,
         top_p=args.top_p,
         delta=args.delta,
     )
     gen_plain = GreedyGenerator(
-        model=model,
-        vocab_size=tok.vocab_size,
-        eos_id=EOS_ID,
         top_k=args.top_k,
         top_p=args.top_p,
     )
@@ -89,11 +73,11 @@ def main(argv: list[str] | None = None) -> None:
     wm, neg, plain = (ids[len(prompt_ids) :] for ids in (wm, neg, plain))
 
     print(Fore.CYAN + "=== watermarked output ===" + Style.RESET_ALL)
-    print(colored_text(wm, tok, args.seed))
+    print(colored_text(wm, _tok, args.seed))
     print(Fore.CYAN + "\n=== negative-seed output ===" + Style.RESET_ALL)
-    print(colored_text(neg, tok, args.seed))
+    print(colored_text(neg, _tok, args.seed))
     print(Fore.CYAN + "\n=== plain output (baseline) ===" + Style.RESET_ALL)
-    print(colored_text(plain, tok, args.seed))
+    print(colored_text(plain, _tok, args.seed))
 
     print(Fore.CYAN + "\n=== detection ===" + Style.RESET_ALL)
     print(f"watermarked, correct key  : {gen_wm.check_hash(wm, args.seed)}")
@@ -108,7 +92,7 @@ def main(argv: list[str] | None = None) -> None:
     ]:
         print(f"{Fore.CYAN}\n=== hash across splits of {name} text ===" + Style.RESET_ALL)
         print(f"{'from tok':>8} | {'seed':<32}")
-        for st in split_starts(text, tok):
+        for st in split_starts(text, _tok):
             span = text[st:]
             print(f"{st:>8} | {gen_wm.check_hash(span, args.seed):<32} ")
 

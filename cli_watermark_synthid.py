@@ -10,14 +10,9 @@ import numpy as np
 
 from colorama import Fore, Style
 
-from target_hash_gen.core import Model, g_score, load_tokenizer
+from target_hash_gen.core import Model, g_score, load_tokenizer, DEFAULT_SEED, _tok
 from target_hash_gen.greedy import GreedyGenerator
-from target_hash_gen.watermark_synthid import (
-    TournamentWatermarkGenerator,
-    EOS_ID,
-    MODEL_ID,
-    DEFAULT_SEED,
-)
+from target_hash_gen.watermark_synthid import TournamentWatermarkGenerator
 
 
 def hit_strength(seed: str, token_id: int, m: int) -> int:
@@ -92,21 +87,16 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--wrong-seed", default="negative key")
     args = ap.parse_args(argv)
 
-    tok = load_tokenizer(MODEL_ID)
-    model = Model(MODEL_ID)
     messages = [
         {
             "role": "user",
             "content": args.prompt,
         },
     ]
-    prompt = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    prompt_ids = tok(prompt, add_special_tokens=False)["input_ids"]
+    prompt = _tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    prompt_ids = _tok(prompt, add_special_tokens=False)["input_ids"]
 
     gen_wm = TournamentWatermarkGenerator(
-        model=model,
-        vocab_size=tok.vocab_size,
-        eos_id=EOS_ID,
         seed=args.seed,
         m=args.layers,
         k=args.competitors,
@@ -114,9 +104,6 @@ def main(argv: list[str] | None = None) -> None:
         top_p=args.top_p,
     )
     gen_neg = TournamentWatermarkGenerator(
-        model=model,
-        vocab_size=tok.vocab_size,
-        eos_id=EOS_ID,
         seed=args.wrong_seed,
         m=args.layers,
         k=args.competitors,
@@ -124,9 +111,6 @@ def main(argv: list[str] | None = None) -> None:
         top_p=args.top_p,
     )
     gen_plain = GreedyGenerator(
-        model=model,
-        vocab_size=tok.vocab_size,
-        eos_id=EOS_ID,
         top_k=args.top_k,
         top_p=args.top_p,
     )

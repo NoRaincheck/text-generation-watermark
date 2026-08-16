@@ -32,7 +32,14 @@ against the 0.5 null grows with sqrt(m*len).
 import numpy as np
 from colorama import Fore, init
 
-from core import Model, _dist, _nucleus, _rng_for, g_score, load_tokenizer
+from core import (
+    WatermarkGenerator,
+    _dist,
+    _rng_for,
+    g_score,
+    load_tokenizer,
+    Model,
+)
 
 init(autoreset=True)
 
@@ -71,37 +78,26 @@ def tournament_sample(
     return int(rng.choice(cand, p=probs))
 
 
-def generate(
-    prompt_ids: list[int],
-    max_new_tokens: int,
-    model: Model,
-    vocab_size: int,
-    seed: str | None = None,
-    m: int = 5,
-    k: int = 2,
-    top_k: int = 20,
-    top_p: float = 0.95,
-) -> list[int]:
-    """Sample continuations; with a seed, run the tournament so the winner tends
-    to score high under the m watermarking functions. Seeded runs use a generator
-    derived from the key so output is reproducible; plain runs (seed=None) are
-    greedy over the nucleus."""
-    ids = list(prompt_ids)
-    arr = np.array([ids], dtype=np.int64)
-    past_key_values = None
-    rng = _rng_for(seed) if seed is not None else None
-    for _ in range(max_new_tokens):
-        logits, past_key_values = model.run(arr, past_key_values)
-        cand = _nucleus(logits[:vocab_size], top_k, top_p)
-        if seed is not None:
-            pick = tournament_sample(logits, cand, m, k, seed, rng)
-        else:
-            pick = int(cand[np.argmax(logits[cand])])
-        ids.append(pick)
-        if pick == EOS_ID:
-            break
-        arr = np.array([[pick]], dtype=np.int64)
-    return ids
+class TournamentWatermarkGenerator(WatermarkGenerator):
+    """Watermark strategy: tournament sampling with m layers, k competitors."""
+
+    def __init__(
+        self,
+        model: Model,
+        vocab_size: int,
+        eos_id: int,
+        seed: str | None = None,
+        m: int = 5,
+        k: int = 2,
+        top_k: int = 20,
+        top_p: float = 0.95,
+    ) -> None:
+        super().__init__(model, vocab_size, eos_id, seed, top_k, top_p)
+        self.m = m
+        self.k = k
+
+    def _sample_with_watermark(self, logits: np.ndarray, cand: np.ndarray) -> int:
+        return tournament_sample(logits, cand, self.m, self.k, self.seed, self.rng)
 
 
 def check_hash(ids: list[int], seed: str, m: int = 5) -> str:
@@ -174,19 +170,41 @@ def main(argv: list[str] | None = None) -> None:
         messages, tokenize=False, add_generation_prompt=True
     )
     prompt_ids = tok(prompt, add_special_tokens=False)["input_ids"]
-    kw = dict(
-        max_new_tokens=args.tokens,
+
+    gen_wm = TournamentWatermarkGenerator(
         model=model,
         vocab_size=tok.vocab_size,
+        eos_id=EOS_ID,
+        seed=args.seed,
+        m=args.layers,
+        k=args.competitors,
+        top_k=args.top_k,
+        top_p=args.top_p,
+    )
+    gen_neg = TournamentWatermarkGenerator(
+        model=model,
+        vocab_size=tok.vocab_size,
+        eos_id=EOS_ID,
+        seed=args.wrong_seed,
+        m=args.layers,
+        k=args.competitors,
+        top_k=args.top_k,
+        top_p=args.top_p,
+    )
+    gen_plain = TournamentWatermarkGenerator(
+        model=model,
+        vocab_size=tok.vocab_size,
+        eos_id=EOS_ID,
+        seed=None,  # no watermark
         m=args.layers,
         k=args.competitors,
         top_k=args.top_k,
         top_p=args.top_p,
     )
 
-    wm = generate(prompt_ids, seed=args.seed, **kw)
-    neg = generate(prompt_ids, seed=args.wrong_seed, **kw)
-    plain = generate(prompt_ids, seed=None, **kw)
+    wm = gen_wm.generate(prompt_ids, max_new_tokens=args.tokens)
+    neg = gen_neg.generate(prompt_ids, max_new_tokens=args.tokens)
+    plain = gen_plain.generate(prompt_ids, max_new_tokens=args.tokens)
     wm, neg, plain = (ids[len(prompt_ids) :] for ids in (wm, neg, plain))
 
     print(

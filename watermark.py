@@ -1,8 +1,8 @@
 """Invisible content hash via token-level watermarking on LFM2.5-350M (PyTorch).
 
-Mirrors watermark.py but generates with the transformers/PyTorch model directly
-instead of ONNX. Every token gets an intrinsic color (green/red) from a keyed
-hash of the token id alone; generation boosts green tokens only among near-equal
+Mirrors watermark_synthid.py but generates with the transformers/PyTorch model
+directly. Every token gets an intrinsic color (green/red) from a keyed hash of
+the token id alone; generation boosts green tokens only among near-equal
 options. Because color never depends on position, the hash survives splitting.
 
 A Watermark for Large Language Models (ICML 2023)
@@ -12,7 +12,13 @@ https://arxiv.org/pdf/2301.10226
 import numpy as np
 from colorama import Fore, init
 
-from core import Model, _nucleus, _rng_for, g_score, load_tokenizer
+from core import (
+    WatermarkGenerator,
+    _rng_for,
+    g_score,
+    load_tokenizer,
+    Model,
+)
 
 init(autoreset=True)
 
@@ -22,45 +28,34 @@ EOS_ID = 7
 GREEN_FRACTION = 0.5
 
 
-def generate(
-    prompt_ids: list[int],
-    max_new_tokens: int,
-    model: Model,
-    vocab_size: int,
-    seed: str | None = None,
-    top_k: int = 20,
-    top_p: float = 0.95,
-    eps: float = 1.0,
-    delta: float = 2.0,
-) -> list[int]:
-    """Sample continuations; with a seed, boost green tokens in the near-equal
-    band. Seeded runs use a generator derived from the key so output is
-    reproducible; plain runs (seed=None) are greedy over the nucleus."""
-    ids = list(prompt_ids)
-    arr = np.array([ids], dtype=np.int64)
-    past_key_values = None
-    rng = _rng_for(seed) if seed is not None else None
-    for _ in range(max_new_tokens):
-        logits, past_key_values = model.run(arr, past_key_values)
-        cand = _nucleus(logits[:vocab_size], top_k, top_p)
-        if seed is not None:
-            best = cand[np.argmax(logits[cand])]
-            near_eq = cand[logits[cand] >= logits[best] - eps]
-            green = np.array([g_score(seed, int(c)) for c in near_eq])
-            if near_eq.size > 1 and green.any():
-                boosted = logits[near_eq].copy()
-                boosted[green] += delta
-                probs = np.exp(boosted - boosted.max())
-                pick = int(rng.choice(near_eq, p=probs / probs.sum()))
-            else:
-                pick = int(best)
-        else:
-            pick = int(cand[np.argmax(logits[cand])])
-        ids.append(pick)
-        if pick == EOS_ID:
-            break
-        arr = np.array([[pick]], dtype=np.int64)
-    return ids
+class BoostWatermarkGenerator(WatermarkGenerator):
+    """Watermark strategy: boost green tokens in the near-equal logit band."""
+
+    def __init__(
+        self,
+        model: Model,
+        vocab_size: int,
+        eos_id: int,
+        seed: str | None = None,
+        top_k: int = 20,
+        top_p: float = 0.95,
+        eps: float = 1.0,
+        delta: float = 2.0,
+    ) -> None:
+        super().__init__(model, vocab_size, eos_id, seed, top_k, top_p)
+        self.eps = eps
+        self.delta = delta
+
+    def _sample_with_watermark(self, logits: np.ndarray, cand: np.ndarray) -> int:
+        best = cand[np.argmax(logits[cand])]
+        near_eq = cand[logits[cand] >= logits[best] - self.eps]
+        green = np.array([g_score(self.seed, int(c)) for c in near_eq])
+        if near_eq.size > 1 and green.any():
+            boosted = logits[near_eq].copy()
+            boosted[green] += self.delta
+            probs = np.exp(boosted - boosted.max())
+            return int(self.rng.choice(near_eq, p=probs / probs.sum()))
+        return int(best)
 
 
 def check_hash(ids: list[int], seed: str = DEFAULT_SEED) -> str:
@@ -122,19 +117,41 @@ def main(argv: list[str] | None = None) -> None:
         messages, tokenize=False, add_generation_prompt=True
     )
     prompt_ids = tok(prompt, add_special_tokens=False)["input_ids"]
-    kw = dict(
-        max_new_tokens=args.tokens,
+
+    gen_wm = BoostWatermarkGenerator(
         model=model,
         vocab_size=tok.vocab_size,
+        eos_id=EOS_ID,
+        seed=args.seed,
+        top_k=args.top_k,
+        top_p=args.top_p,
+        eps=args.eps,
+        delta=args.delta,
+    )
+    gen_neg = BoostWatermarkGenerator(
+        model=model,
+        vocab_size=tok.vocab_size,
+        eos_id=EOS_ID,
+        seed=args.wrong_seed,
+        top_k=args.top_k,
+        top_p=args.top_p,
+        eps=args.eps,
+        delta=args.delta,
+    )
+    gen_plain = BoostWatermarkGenerator(
+        model=model,
+        vocab_size=tok.vocab_size,
+        eos_id=EOS_ID,
+        seed=None,  # no watermark
         top_k=args.top_k,
         top_p=args.top_p,
         eps=args.eps,
         delta=args.delta,
     )
 
-    wm = generate(prompt_ids, seed=args.seed, **kw)
-    neg = generate(prompt_ids, seed=args.wrong_seed, **kw)
-    plain = generate(prompt_ids, seed=None, **kw)
+    wm = gen_wm.generate(prompt_ids, max_new_tokens=args.tokens)
+    neg = gen_neg.generate(prompt_ids, max_new_tokens=args.tokens)
+    plain = gen_plain.generate(prompt_ids, max_new_tokens=args.tokens)
     wm, neg, plain = (ids[len(prompt_ids) :] for ids in (wm, neg, plain))
 
     print(Fore.CYAN + "=== watermarked output ===")

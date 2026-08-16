@@ -1,0 +1,20 @@
+[project]
+name = "target-hash-gen"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "NoRaincheck", email = "2498638+NoRaincheck@users.noreply.github.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "accelerate>=1.14.0",
+    "colorama>=0.4.6",
+    "huggingface-hub>=1.27.0",
+    "jinja2>=3.1",
+    "llama-cpp-python>=0.3.34",
+    "numpy>=2.5.2",
+    "onnxruntime>=1.28.0",
+    "torch>=2.13.0",
+    "transformers>=5.15.0",
+]

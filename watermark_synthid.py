@@ -46,6 +46,7 @@ init(autoreset=True)
 MODEL_ID = "LiquidAI/LFM2.5-350M"
 DEFAULT_SEED = "target-hash-gen demo key"
 EOS_ID = 7
+GREEN_FRACTION = 0.5
 
 
 def tournament_sample(
@@ -108,16 +109,18 @@ def check_hash(ids: list[int], seed: str, m: int = 5) -> str:
         return "Hash(0/0 frac=0.000 z=+0.0)"
     ones = sum(g_score(seed, t, layer) for t in ids for layer in range(m))
     frac = ones / n
-    z = (frac - 0.5) / np.sqrt(0.25 / n)
+    z = (frac - GREEN_FRACTION) / np.sqrt(GREEN_FRACTION * (1 - GREEN_FRACTION) / n)
     return f"Hash({ones}/{n} frac={frac:.3f} z={z:+.1f})"
 
 
 def colored_hash(ids: list[int], seed: str, m: int = 5) -> str:
     """check_hash() colorized: green when the watermark is detected (z >= 1.65),
     red when it isn't."""
-    n = len(ids) * m
-    ones = sum(g_score(seed, t, layer) for t in ids for layer in range(m)) if ids else 0
-    z = (ones / n - 0.5) / np.sqrt(0.25 / n) if n else 0.0
+    n = len(ids) * m or 1
+    ones = sum(g_score(seed, t, layer) for t in ids for layer in range(m))
+    z = (ones / n - GREEN_FRACTION) / np.sqrt(
+        GREEN_FRACTION * (1 - GREEN_FRACTION) / n
+    )
     return (Fore.GREEN if z >= 1.65 else Fore.RED) + check_hash(ids, seed, m)
 
 

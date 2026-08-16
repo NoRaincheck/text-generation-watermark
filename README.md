@@ -146,3 +146,15 @@ from tok | seed                             wrong seed
      156 | Hash(106/220 frac=0.482 z=-0.5) Hash(118/220 frac=0.536 z=+1.1)
      180 | Hash(44/100 frac=0.440 z=-1.2) Hash(53/100 frac=0.530 z=+0.6)
 ```
+
+## Notes
+
+The implementations in `watermark.py` and `watermark_synthid.py` are deliberately simplified and consolidated into single scripts for teaching purposes. They are not intended for production use.
+
+## References
+
+- **Watermark for LLM outputs** ( Kirchenbauer et al., 2023) — the algorithm in `watermark.py` is based on this work.
+  [[Proceedings of MLR](https://proceedings.mlr.press/v202/kirchenbauer23a.html)]
+
+- **Digital watermarks for large language models** (Poesia et al., 2024, *Nature*) — the algorithm in `watermark_synthid.py` is based on this work.
+  [[Nature](https://www.nature.com/articles/s41586-024-08025-4)]

@@ -1,23 +1,17 @@
-"""Plain greedy generation with nucleus sampling — no watermark.
-
-Demonstrates how :class:`GreedyGenerator` from core.py is used for
-non-watermarked baseline generation. This file is kept separate to show
-the pattern: a script owns its CLI, model config, and output formatting,
-while the generator class owns the sampling loop.
+#!/usr/bin/env python3
+"""CLI driver for plain greedy generation (no watermark).
 
 Usage:
 
-    uv run greedy.py --prompt "What is gravity?" --tokens 200
+    uv run cli_greedy.py --prompt "What is gravity?" --tokens 200
 """
 
 from colorama import Fore, init
 
-from core import GreedyGenerator, Model, load_tokenizer
+from target_hash_gen.core import GreedyGenerator, Model, load_tokenizer
+from target_hash_gen.greedy import EOS_ID, MODEL_ID
 
 init(autoreset=True)
-
-MODEL_ID = "LiquidAI/LFM2.5-350M"
-EOS_ID = 7
 
 
 def main(argv: list[str] | None = None) -> None:

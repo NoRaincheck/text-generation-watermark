@@ -1,7 +1,6 @@
 """Core infrastructure: model loading, tokenizers, RNG, nucleus & dist helpers.
 
-Shared between watermark.py and watermark_synthid.py so the scripts stay
-minimal and readable for teaching purposes.
+Shared between the watermark strategies so each stays minimal and readable.
 """
 
 import hashlib
@@ -25,6 +24,7 @@ class Model:
             model_id,
             device_map="auto" if device is None else None,
             dtype=dtype,
+            local_files_only=True,
         )
         self.model.eval()
         self.device = next(self.model.parameters()).device
@@ -82,8 +82,7 @@ class WatermarkGenerator:
     EOS handling, and deterministic RNG — so subclasses only need to
     implement ``_sample_with_watermark`` to define their watermark strategy.
 
-    For plain (non-watermarked) greedy generation, use :class:`GreedyGenerator`
-    in *greedy.py* instead.
+    For plain (non-watermarked) greedy generation, use :class:`GreedyGenerator`.
     """
 
     def __init__(

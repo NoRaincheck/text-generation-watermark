@@ -1,7 +1,7 @@
 [project]
 name = "target-hash-gen"
 version = "0.1.0"
-description = "Add your description here"
+description = "Invisible content hash via token-level watermarking"
 readme = "README.md"
 authors = [
     { name = "NoRaincheck", email = "2498638+NoRaincheck@users.noreply.github.com" }
@@ -18,3 +18,6 @@ dependencies = [
     "torch>=2.13.0",
     "transformers>=5.15.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]

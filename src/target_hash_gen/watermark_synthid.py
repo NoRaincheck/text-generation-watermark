@@ -94,7 +94,9 @@ class TournamentWatermarkGenerator(WatermarkGenerator):
     def check_hash(self, ids: list[int], seed: str | None = None) -> float:
         """Z-score vs the expected 0.5 (mean g-score over m layers per token,
         seed per layer = "{seed}_layer{n}") on any token span."""
-        s = seed if seed is not None else self.seed
+        s = seed or self.seed
+        if s is None:
+            raise ValueError("seed cannot be None when check_hash")
         n = len(ids) * self.m
         if n == 0:
             return 0.0

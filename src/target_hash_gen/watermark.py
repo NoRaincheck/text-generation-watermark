@@ -42,7 +42,9 @@ class BoostWatermarkGenerator(WatermarkGenerator):
 
     def check_hash(self, ids: list[int], seed: str | None = None) -> float:
         """Green fraction's z-score vs the expected 0.5, on any token span."""
-        s = seed if seed is not None else self.seed
+        s = self.seed or seed
+        if s is None:
+            raise ValueError("seed cannot be None when check_hash")
         if not ids:
             return 0.0
         z = (sum(g_score(s, t) for t in ids) / len(ids) - GREEN_FRACTION) / np.sqrt(

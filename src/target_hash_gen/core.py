@@ -129,13 +129,12 @@ class WatermarkGenerator:
         raise NotImplementedError
 
 
-class GreedyGenerator:
+class GreedyGenerator(WatermarkGenerator):
     """Plain greedy generation with nucleus sampling — no watermark.
 
-    Uses the same KV-cache loop and nucleus filtering as
-    :class:`WatermarkGenerator`, but always picks the highest-logit
-    candidate. Useful as a baseline or when you want generation without
-    any watermarking overhead.
+    Inherits from :class:`WatermarkGenerator` with ``seed`` always
+    ``None``, so the shared ``generate`` loop takes the greedy
+    (highest-logit nucleus candidate) path.
     """
 
     def __init__(
@@ -146,26 +145,11 @@ class GreedyGenerator:
         top_k: int = 20,
         top_p: float = 0.95,
     ) -> None:
-        self.model = model
-        self.vocab_size = vocab_size
-        self.eos_id = eos_id
-        self.top_k = top_k
-        self.top_p = top_p
-
-    def generate(self, prompt_ids: list[int], max_new_tokens: int) -> list[int]:
-        """Greedy sample: pick the highest-logit token from the nucleus."""
-        ids = list(prompt_ids)
-        arr = np.array([ids], dtype=np.int64)
-        past_key_values = None
-
-        for _ in range(max_new_tokens):
-            logits, past_key_values = self.model.run(arr, past_key_values)
-            cand = _nucleus(logits[: self.vocab_size], self.top_k, self.top_p)
-            pick = int(cand[np.argmax(logits[cand])])
-
-            ids.append(pick)
-            if pick == self.eos_id:
-                break
-            arr = np.array([[pick]], dtype=np.int64)
-
-        return ids
+        super().__init__(
+            model,
+            vocab_size,
+            eos_id,
+            seed=None,
+            top_k=top_k,
+            top_p=top_p,
+        )

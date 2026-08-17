@@ -17,7 +17,7 @@ from target_hash_gen.watermark_synthid import TournamentWatermarkGenerator
 
 def hit_strength(seed: str, token_id: int, m: int) -> int:
     """How many of the m watermarking functions score this token green (0..m)."""
-    return sum(g_score(seed, token_id, layer) for layer in range(m))
+    return sum(g_score(seed, token_id, str(layer)) for layer in range(m))
 
 
 def ref_quantiles(ids: list[int], seed: str, m: int) -> tuple[float, float, float]:
@@ -32,12 +32,12 @@ def hit_color(hits: int, p50: float, p75: float, p90: float) -> str:
     bins: no color below p50, green in [p50, p75), yellow in [p75, p90),
     red at or above p90."""
     if hits < p50:
-        return Style.RESET_ALL
+        return str(Style.RESET_ALL)
     if hits < p75:
-        return Fore.GREEN
+        return str(Fore.GREEN)
     if hits < p90:
-        return Fore.YELLOW
-    return Fore.RED
+        return str(Fore.YELLOW)
+    return str(Fore.RED)
 
 
 def colored_text(
@@ -83,7 +83,7 @@ def main(argv: list[str] | None = None) -> None:
         metavar="K",
         help="tokens per match (reserved; matches are currently pairwise) (default 2)",
     )
-    ap.add_argument("--seed", default=DEFAULT_SEED)
+    ap.add_argument("--seed", default="a seed")
     ap.add_argument("--wrong-seed", default="negative key")
     args = ap.parse_args(argv)
 
@@ -121,20 +121,18 @@ def main(argv: list[str] | None = None) -> None:
     wm, neg, plain = (ids[len(prompt_ids) :] for ids in (wm, neg, plain))
 
     print(
-        Fore.CYAN
-        + f"=== watermarked output ({args.layers} layers, {args.competitors} competitors/match) ==="
-        + Style.RESET_ALL
+        f"{Fore.CYAN}=== watermarked output ({args.layers} layers, {args.competitors} competitors/match) ==={Style.RESET_ALL}"
     )
     p50, p75, p90 = ref_quantiles(wm, args.seed, args.layers)
     title = f"(colored vs watermarked ref: p50={p50:.2f}, p75={p75:.2f}, p90={p90:.2f})"
-    print(Fore.CYAN + title + Style.RESET_ALL)
-    print(colored_text(wm, tok, args.seed, args.layers, p50, p75, p90))
-    print(Fore.CYAN + "\n=== negative-seed output ===" + Style.RESET_ALL)
-    print(colored_text(neg, tok, args.seed, args.layers, p50, p75, p90))
-    print(Fore.CYAN + "\n=== plain output (baseline) ===" + Style.RESET_ALL)
-    print(colored_text(plain, tok, args.seed, args.layers, p50, p75, p90))
+    print(f"{Fore.CYAN}{title}{Style.RESET_ALL}")
+    print(colored_text(wm, _tok, args.seed, args.layers, p50, p75, p90))
+    print(f"{Fore.CYAN}\n=== negative-seed output ==={Style.RESET_ALL}")
+    print(colored_text(neg, _tok, args.seed, args.layers, p50, p75, p90))
+    print(f"{Fore.CYAN}\n=== plain output (baseline) ==={Style.RESET_ALL}")
+    print(colored_text(plain, _tok, args.seed, args.layers, p50, p75, p90))
 
-    print(Fore.CYAN + "\n=== detection ===" + Style.RESET_ALL)
+    print(f"{Fore.CYAN}\n=== detection ==={Style.RESET_ALL}")
     print(f"watermarked, correct key  : {gen_wm.check_hash(wm, args.seed)}")
     print(f"watermarked, wrong key    : {gen_wm.check_hash(wm, args.wrong_seed)}")
     print(f"negative-seed, correct key: {gen_wm.check_hash(neg, args.seed)}")
@@ -145,9 +143,9 @@ def main(argv: list[str] | None = None) -> None:
         ("negative-seed", neg),
         ("plain", plain),
     ]:
-        print(f"{Fore.CYAN}\n=== hash across splits of {name} text ===" + Style.RESET_ALL)
+        print(f"{Fore.CYAN}\n=== hash across splits of {name} text ==={Style.RESET_ALL}")
         print(f"{'from tok':>8} | {'seed':<32}")
-        for st in split_starts(text, tok):
+        for st in split_starts(text, _tok):
             span = text[st:]
             print(f"{st:>8} | {gen_wm.check_hash(span, args.seed):<32} ")
 

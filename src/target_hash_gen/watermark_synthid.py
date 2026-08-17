@@ -41,6 +41,8 @@ def tournament_sample(
     seed: str,
     rng: np.random.Generator,
 ) -> int:
+    assert seed is not None
+    assert rng is not None
     """Tournament sampling as an elimination bracket.
 
     Each layer, the surviving candidates are shuffled and paired up; within a
@@ -57,8 +59,8 @@ def tournament_sample(
         next_round = []
         for i in range(0, len(survivors) - 1, 2):
             a, b = survivors[i], survivors[i + 1]
-            ga = g_score(seed, int(a), layer)
-            gb = g_score(seed, int(b), layer)
+            ga = g_score(seed, int(a), str(layer))
+            gb = g_score(seed, int(b), str(layer))
             if ga != gb:
                 next_round.append(a if ga else b)
             elif rng.random() < 0.5:
@@ -89,6 +91,8 @@ class TournamentWatermarkGenerator(WatermarkGenerator):
         self.k = k
 
     def _sample_with_watermark(self, logits: np.ndarray, cand: np.ndarray) -> int:
+        assert self.seed is not None
+        assert self.rng is not None
         return tournament_sample(logits, cand, self.m, self.k, self.seed, self.rng)
 
     def check_hash(self, ids: list[int], seed: str | None = None) -> float:
@@ -100,6 +104,6 @@ class TournamentWatermarkGenerator(WatermarkGenerator):
         n = len(ids) * self.m
         if n == 0:
             return 0.0
-        frac = sum(g_score(s, t, layer) for t in ids for layer in range(self.m)) / n
+        frac = sum(g_score(s, t, str(layer)) for t in ids for layer in range(self.m)) / n
         z = (frac - GREEN_FRACTION) / np.sqrt(GREEN_FRACTION * (1 - GREEN_FRACTION) / n)
         return float(z)

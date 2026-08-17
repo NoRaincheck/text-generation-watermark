@@ -30,6 +30,8 @@ class BoostWatermarkGenerator(WatermarkGenerator):
         self.delta = delta
 
     def _sample_with_watermark(self, logits: np.ndarray, cand: np.ndarray) -> int:
+        assert self.seed is not None
+        assert self.rng is not None
         best = cand[np.argmax(logits[cand])]
         green = np.array([g_score(self.seed, int(c)) for c in cand])
         if cand.size > 1 and green.any():

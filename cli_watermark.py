@@ -32,7 +32,7 @@ def main(argv: list[str] | None = None) -> None:
     import argparse
 
     ap = argparse.ArgumentParser(description="Invisible content hash via token-level watermarking")
-    ap.add_argument("--prompt", type=str, default="What is gravity?")
+    ap.add_argument("--prompt", type=str, default="What is a rainbow?")
     ap.add_argument("--tokens", type=int, default=200)
     ap.add_argument("--top-k", type=int, default=20)
     for name, default in (("top-p", 0.95), ("delta", 1.0)):
@@ -72,14 +72,14 @@ def main(argv: list[str] | None = None) -> None:
     plain = gen_plain.generate(prompt_ids, max_new_tokens=args.tokens)
     wm, neg, plain = (ids[len(prompt_ids) :] for ids in (wm, neg, plain))
 
-    print(Fore.CYAN + "=== watermarked output ===" + Style.RESET_ALL)
+    print(f"{Fore.CYAN}=== watermarked output ==={Style.RESET_ALL}")
     print(colored_text(wm, _tok, args.seed))
-    print(Fore.CYAN + "\n=== negative-seed output ===" + Style.RESET_ALL)
+    print(f"{Fore.CYAN}\n=== negative-seed output ==={Style.RESET_ALL}")
     print(colored_text(neg, _tok, args.seed))
-    print(Fore.CYAN + "\n=== plain output (baseline) ===" + Style.RESET_ALL)
+    print(f"{Fore.CYAN}\n=== plain output (baseline) ==={Style.RESET_ALL}")
     print(colored_text(plain, _tok, args.seed))
 
-    print(Fore.CYAN + "\n=== detection ===" + Style.RESET_ALL)
+    print(f"{Fore.CYAN}\n=== detection ==={Style.RESET_ALL}")
     print(f"watermarked, correct key  : {gen_wm.check_hash(wm, args.seed)}")
     print(f"watermarked, wrong key    : {gen_wm.check_hash(wm, args.wrong_seed)}")
     print(f"negative-seed, correct key: {gen_wm.check_hash(neg, args.seed)}")
@@ -90,7 +90,7 @@ def main(argv: list[str] | None = None) -> None:
         ("negative-seed", neg),
         ("plain", plain),
     ]:
-        print(f"{Fore.CYAN}\n=== hash across splits of {name} text ===" + Style.RESET_ALL)
+        print(f"{Fore.CYAN}\n=== hash across splits of {name} text ==={Style.RESET_ALL}")
         print(f"{'from tok':>8} | {'seed':<32}")
         for st in split_starts(text, _tok):
             span = text[st:]

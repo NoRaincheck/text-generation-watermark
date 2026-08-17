@@ -3,6 +3,8 @@
 Shared between the watermark strategies so each stays minimal and readable.
 """
 
+from typing import Any
+
 import hashlib
 
 import numpy as np
@@ -33,7 +35,7 @@ class Model:
         self.model.eval()
         self.device = next(self.model.parameters()).device
 
-    def run(self, ids: np.ndarray, past_key_values=None) -> np.ndarray:
+    def run(self, ids: np.ndarray, past_key_values=None) -> tuple[np.ndarray, Any]:
         x = torch.tensor(ids, dtype=torch.long, device=self.device)
         with torch.no_grad():
             out = self.model(x, use_cache=True, past_key_values=past_key_values)

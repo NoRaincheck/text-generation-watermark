@@ -11,7 +11,7 @@ https://arxiv.org/pdf/2301.10226
 
 import numpy as np
 
-from target_hash_gen.core import WatermarkGenerator, g_score, _model, _tok, EOS_ID
+from target_hash_gen.core import WatermarkGenerator, g_score
 
 GREEN_FRACTION = 0.5
 

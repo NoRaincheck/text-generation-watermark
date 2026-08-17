@@ -28,7 +28,7 @@ against the 0.5 null grows with sqrt(m*len).
 
 import numpy as np
 
-from target_hash_gen.core import WatermarkGenerator, g_score, _model, _tok, EOS_ID
+from target_hash_gen.core import WatermarkGenerator, g_score
 
 GREEN_FRACTION = 0.5
 

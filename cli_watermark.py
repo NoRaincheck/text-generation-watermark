@@ -80,10 +80,9 @@ def main(argv: list[str] | None = None) -> None:
     print(colored_text(plain, _tok, args.seed))
 
     print(f"{Fore.CYAN}\n=== detection ==={Style.RESET_ALL}")
-    print(f"watermarked, correct key  : {gen_wm.check_hash(wm, args.seed)}")
-    print(f"watermarked, wrong key    : {gen_wm.check_hash(wm, args.wrong_seed)}")
-    print(f"negative-seed, correct key: {gen_wm.check_hash(neg, args.seed)}")
-    print(f"plain, correct key        : {gen_wm.check_hash(plain, args.seed)}")
+    print(f"watermarked  : {gen_wm.check_hash(wm, args.seed)}")
+    print(f"negative-seed: {gen_wm.check_hash(neg, args.seed)}")
+    print(f"plain        : {gen_wm.check_hash(plain, args.seed)}")
 
     for name, text in [
         ("watermarked", wm),

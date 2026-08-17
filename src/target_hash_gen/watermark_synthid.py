@@ -57,14 +57,18 @@ def tournament_sample(
             break
         rng.shuffle(survivors)
         next_round = []
+        # Pair adjacent survivors (post-shuffle) into a random elimination bracket.
+        # Each pair competes under the same g-score for this layer; the winner
+        # advances. This is analogous to a sports tournament: random seeding,
+        # pairwise matches, single elimination per round.
         for i in range(0, len(survivors) - 1, 2):
-            a, b = survivors[i], survivors[i + 1]
+            a, b = survivors[i], survivors[i + 1]  # adjacent shuffled tokens form a match
             ga = g_score(seed, int(a), str(layer))
             gb = g_score(seed, int(b), str(layer))
             if ga != gb:
-                next_round.append(a if ga else b)
+                next_round.append(a if ga else b)  # higher g-score wins
             elif rng.random() < 0.5:
-                next_round.append(a)
+                next_round.append(a)  # tie-break: coin flip
             else:
                 next_round.append(b)
         if len(survivors) % 2:

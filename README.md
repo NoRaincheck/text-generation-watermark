@@ -54,119 +54,128 @@ detection works on sentence fragments, paragraphs, or any portion of the passage
 
 ### Sample Output
 
-```sh
-$ uv run watermark.py
+Colored text output from the notebooks in [`notebooks/`](notebooks/), rendered
+with ANSI colors (shown on GitHub and in most markdown viewers). Every token is
+colored by watermark match against the detection seed.
 
-=== watermarked output ===
-Gravity is a fundamental force of nature that attracts two objects with mass toward each other. It is a universal force that shapes the structure of the universe, from the smallest subatomic particles to the vast expanses of galaxies. Gravity is responsible for many everyday phenomena, such as the falling of objects, the orbits of planets, and the stability of the Earth's shape.
+#### Token-level watermark — [`notebook_watermark.ipynb`](notebooks/notebook_watermark.ipynb)
 
-In the context of the universe, gravity is what causes matter to clump together, forming stars, planets, and galaxies. It also plays a crucial role in the evolution of the cosmos, influencing the formation of cosmic structures and the distribution of matter.
+Prompt: *"What is a rainbow?"* · seed `default-seed` · top-k 20 · top-p 0.95
 
-There are several types of gravity, including:
-
-* Newtonian gravity: A classical theory that describes the force of gravity as a universal constant, acting between all objects with mass.
-* General relativity: A theory developed by Albert Einstein that describes gravity as the curvature of spacetime caused by massive objects.
-* Dark matter: A type of matter that does not
-
-=== negative-seed output ===
-Gravity is a fundamental force of nature that attracts any two objects with mass toward each other. It is one of the four fundamental forces of nature, alongside electromagnetism, the strong nuclear force, and the weak nuclear force. Gravity is responsible for the motion of planets, the orbits of comets, and the collapse of stars. It also affects the trajectory of projectiles, the movement of objects in space, and the formation of structures like galaxies and solar systems. In general relativity, gravity is described as the curvature of spacetime caused by mass and energy, which influences the motion of objects within it.
-
-=== plain output (baseline) ===
-Gravity is a fundamental force of nature that attracts two objects with mass toward each other. It is a universal force that governs the motion of planets, stars, and other celestial bodies, as well as the behavior of objects on Earth. Gravity is responsible for the orbits of planets around the Sun, the tides on Earth, and the stability of the Earth's orbit around the Sun.
-
-In physics, gravity is described by Newton's law of universal gravitation, which states that every mass attracts every other mass with a force proportional to the product of their masses and inversely proportional to the square of the distance between them. This law explains many phenomena, including the motion of comets, asteroids, and planets, as well as the behavior of objects in space.
-
-Gravity also plays a crucial role in the formation of galaxies and the structure of the universe on large scales. It is a key factor in the way stars form and evolve, and it continues to shape the cos
-
-=== detection ===
-watermarked, correct key  : Hash(134/200 frac=0.670 z=+4.8)
-watermarked, wrong key    : Hash(91/200 frac=0.455 z=-1.3)
-negative-seed, correct key: Hash(71/126 frac=0.563 z=+1.4)
-plain, correct key        : Hash(109/200 frac=0.545 z=+1.3)
-
-=== hash across splits of watermarked text ===
-from tok | key                              neg key                         
-      19 | Hash(127/181 frac=0.702 z=+5.4) Hash(82/181 frac=0.453 z=-1.3)
-      46 | Hash(107/154 frac=0.695 z=+4.8) Hash(69/154 frac=0.448 z=-1.3)
-      76 | Hash(87/124 frac=0.702 z=+4.5) Hash(60/124 frac=0.484 z=-0.4)
-     102 | Hash(67/98 frac=0.684 z=+3.6) Hash(52/98 frac=0.531 z=+0.6)
-     128 | Hash(50/72 frac=0.694 z=+3.3) Hash(40/72 frac=0.556 z=+0.9)
-
-=== hash across splits of negative-seed text ===
-from tok | key                              neg key                         
-      20 | Hash(45/106 frac=0.425 z=-1.6) Hash(64/106 frac=0.604 z=+2.1)
-      48 | Hash(33/78 frac=0.423 z=-1.4) Hash(48/78 frac=0.615 z=+2.0)
-      70 | Hash(24/56 frac=0.429 z=-1.1) Hash(35/56 frac=0.625 z=+1.9)
-      97 | Hash(11/29 frac=0.379 z=-1.3) Hash(19/29 frac=0.655 z=+1.7)
-
-=== hash across splits of plain text ===
-from tok | key                              neg key                         
-      19 | Hash(102/181 frac=0.564 z=+1.7) Hash(70/181 frac=0.387 z=-3.0)
-      49 | Hash(85/151 frac=0.563 z=+1.5) Hash(59/151 frac=0.391 z=-2.7)
-      80 | Hash(65/120 frac=0.542 z=+0.9) Hash(47/120 frac=0.392 z=-2.4)
-     128 | Hash(42/72 frac=0.583 z=+1.4) Hash(27/72 frac=0.375 z=-2.1)
-     156 | Hash(25/44 frac=0.568 z=+0.9) Hash(18/44 frac=0.409 z=-1.2)
-     180 | Hash(12/20 frac=0.600 z=+0.9) Hash(10/20 frac=0.500 z=+0.0)
+```ansi
+[1;38;5;28mgreen[0m = green-list (key match)   [38;5;203mred[0m = red-list (no match)
 ```
 
-```sh
-$ uv run watermark_synthid.py
+**🟩 Watermarked output**
 
-=== watermarked output (5 layers, 2 competitors/match) ===
-Gravity is a fundamental force of nature that attracts any two objects with mass toward each other. It is a universal constant, meaning it exists everywhere in the universe. Gravity is responsible for the motion of planets, the orbits of comets, and the stability of Earth's systems. It also plays a crucial role in the behavior of celestial bodies like black holes and neutron stars.
+```ansi
+[38;5;203mA[0m[38;5;203m rainbow[0m[1;38;5;28m is[0m[38;5;203m a[0m[1;38;5;28m natural[0m[1;38;5;28m phenomenon[0m[38;5;203m caused[0m[38;5;203m by[0m[1;38;5;28m the[0m[38;5;203m ref[0m[38;5;203mraction[0m[38;5;203m,[0m[38;5;203m reflection[0m[38;5;203m,[0m[38;5;203m and[0m[1;38;5;28m dispersion[0m[1;38;5;28m of[0m
+[1;38;5;28msunlight[0m[1;38;5;28m within[0m[38;5;203m water[0m[1;38;5;28m droplets[0m[1;38;5;28m in[0m[1;38;5;28m the[0m[1;38;5;28m air[0m[38;5;203m.[0m[1;38;5;28m When[0m[1;38;5;28m sunlight[0m[1;38;5;28m enters[0m[38;5;203m a[0m[38;5;203m ra[0m[38;5;203mind[0m[38;5;203mrop[0m[38;5;203m,[0m[1;38;5;28m it[0m[1;38;5;28m b[0m[38;5;203mends[0m[38;5;203m and[0m
+[1;38;5;28mspreads[0m[1;38;5;28m across[0m[1;38;5;28m the[0m[1;38;5;28m surface[0m[38;5;203m,[0m[38;5;203m creating[0m[38;5;203m a[0m[1;38;5;28m circular[0m[1;38;5;28m pattern[0m[1;38;5;28m of[0m[1;38;5;28m colors[0m[1;38;5;28m at[0m[1;38;5;28m the[0m[1;38;5;28m bottom[0m[1;38;5;28m of[0m[1;38;5;28m the[0m[1;38;5;28m drop[0m[38;5;203m.[0m[38;5;203m As[0m
+[1;38;5;28mthe[0m[1;38;5;28m sunlight[0m[1;38;5;28m ex[0m[38;5;203mits[0m[1;38;5;28m the[0m[1;38;5;28m drop[0m[38;5;203m,[0m[1;38;5;28m it[0m[1;38;5;28m dispers[0m[38;5;203mes[0m[38;5;203m into[0m[1;38;5;28m the[0m[1;38;5;28m air[0m[38;5;203m,[0m[38;5;203m creating[0m[1;38;5;28m the[0m[1;38;5;28m colors[0m[1;38;5;28m that[0m[1;38;5;28m are[0m[38;5;203m visible[0m[1;38;5;28m to[0m
+[1;38;5;28mthe[0m[1;38;5;28m human[0m[1;38;5;28m eye[0m[38;5;203m—[0m[38;5;203mtyp[0m[1;38;5;28mically[0m[1;38;5;28m red[0m[38;5;203m,[0m[1;38;5;28m orange[0m[38;5;203m,[0m[38;5;203m yellow[0m[38;5;203m,[0m[1;38;5;28m green[0m[38;5;203m,[0m[38;5;203m blue[0m[38;5;203m,[0m[1;38;5;28m ind[0m[1;38;5;28migo[0m[38;5;203m,[0m[38;5;203m and[0m[38;5;203m violet[0m[38;5;203m.[0m
 
-There are different types of gravity, including gravitational attraction, which pulls objects together, and gravitational repulsion, which pushes them apart. Gravity can also act on smaller objects, like water or even atoms themselves, though its effect on microscopic scales is not as significant.
+[38;5;203mR[0m[38;5;203main[0m[1;38;5;28mbows[0m[1;38;5;28m usually[0m[1;38;5;28m appear[0m[1;38;5;28m at[0m[1;38;5;28m certain[0m[1;38;5;28m angles[0m[1;38;5;28m relative[0m[1;38;5;28m to[0m[1;38;5;28m the[0m[1;38;5;28m horizon[0m[38;5;203m,[0m[38;5;203m most[0m[38;5;203m commonly[0m[1;38;5;28m at[0m[1;38;5;28m around[0m[1;38;5;28m [0m[38;5;203m42[0m
+[1;38;5;28mdegrees[0m[1;38;5;28m to[0m[1;38;5;28m the[0m[1;38;5;28m left[0m[1;38;5;28m of[0m[1;38;5;28m the[0m[38;5;203m sun[0m[38;5;203m and[0m[1;38;5;28m [0m[1;38;5;28m30[0m[1;38;5;28m degrees[0m[1;38;5;28m to[0m[1;38;5;28m the[0m[38;5;203m right[0m[1;38;5;28m of[0m[1;38;5;28m the[0m[1;38;5;28m horizon[0m[38;5;203m.[0m[38;5;203m The[0m[1;38;5;28m colors[0m[1;38;5;28m that[0m
+[1;38;5;28mdominate[0m[38;5;203m a[0m[38;5;203m rainbow[0m[1;38;5;28m are[0m[1;38;5;28m usually[0m[1;38;5;28m red[0m[1;38;5;28m at[0m[1;38;5;28m the[0m[1;38;5;28m longest[0m[1;38;5;28m wavelengths[0m[38;5;203m,[0m[1;38;5;28m but[0m[1;38;5;28m there[0m[1;38;5;28m are[0m[1;38;5;28m variations[0m[1;38;5;28m in[0m[1;38;5;28m the[0m
+[1;38;5;28mcolors[0m[1;38;5;28m based[0m[1;38;5;28m on[0m[1;38;5;28m the[0m[1;38;5;28m intensity[0m[1;38;5;28m of[0m[1;38;5;28m sunlight[0m[38;5;203m and[0m[1;38;5;28m the[0m[1;38;5;28m conditions[0m[1;38;5;28m of[0m[1;38;5;28m the[0m[38;5;203m viewing[0m[1;38;5;28m angle[0m[38;5;203m.[0m
 
-Gravity is not only important on Earth but also in the vast emptiness of space. It shapes the structure of galaxies, the movement of stars within them, and even the way we perceive the universe. While we can't directly measure or manipulate gravity in everyday life, its effects are immeasurable in their impact on the cos
+[38;5;203mIn[0m[1;38;5;28m addition[0m[1;38;5;28m to[0m[1;38;5;28m natural[0m[38;5;203m rain[0m[1;38;5;28mbows[0m[38;5;203m,[0m[1;38;5;28m artificial[0m[38;5;203m rainbow[0m[38;5;203m effects[0m[1;38;5;28m are[0m[1;38;5;28m also[0m[1;38;5;28m created[0m[1;38;5;28m using[0m[1;38;5;28m light[0m[38;5;203m bulbs[0m
+[1;38;5;28mthat[0m[38;5;203m disp[0m[1;38;5;28merse[0m[1;38;5;28m colors[0m[38;5;203m,[0m[38;5;203m and[0m[1;38;5;28m many[0m[1;38;5;28m people[0m[1;38;5;28m enjoy[0m[38;5;203m them[0m[1;38;5;28m for[0m
+```
 
-=== negative-seed output ===
-Gravity is a fundamental force of nature that attracts two masses toward each other. It is a universally present force that governs the motion of planets, stars, and other large bodies in the universe. The strength of gravity depends on the masses involved and the distance between them.
+**⬜ Negative-seed output** (seed `negative key`, evaluated against `default-seed`)
 
-According to Isaac Newton's Law of Universal Gravitation, the force of gravity between two masses is directly proportional to the product of their masses and inversely proportional to the square of the distance between them. This law explains many phenomena, such as the orbits of planets, the fall of an object to the ground, and the movement of satellites around Earth.
+```ansi
+[38;5;203mA[0m[38;5;203m rainbow[0m[1;38;5;28m is[0m[38;5;203m a[0m[1;38;5;28m spectacular[0m[1;38;5;28m natural[0m[1;38;5;28m phenomenon[0m[1;38;5;28m that[0m[1;38;5;28m occurs[0m[38;5;203m when[0m[1;38;5;28m sunlight[0m[38;5;203m interacts[0m[38;5;203m with[0m[38;5;203m water[0m
+[1;38;5;28mdroplets[0m[1;38;5;28m in[0m[1;38;5;28m the[0m[38;5;203m atmosphere[0m[38;5;203m.[0m[38;5;203m It[0m[38;5;203m typically[0m[38;5;203m appears[0m[38;5;203m when[0m[1;38;5;28m the[0m[38;5;203m sun[0m[1;38;5;28m is[0m[1;38;5;28m positioned[0m[38;5;203m behind[0m[38;5;203m a[0m[38;5;203m group[0m[1;38;5;28m of[0m
+[1;38;5;28mlarge[0m[38;5;203m,[0m[38;5;203m flat[0m[38;5;203m,[0m[1;38;5;28m horizontally[0m[38;5;203m-[0m[1;38;5;28mangled[0m[1;38;5;28m droplets[0m[38;5;203m ([0m[1;38;5;28moften[0m[1;38;5;28m formed[0m[38;5;203m by[0m[38;5;203m rain[0m[38;5;203mstorms[0m[38;5;203m)[0m[1;38;5;28m in[0m[1;38;5;28m the[0m[1;38;5;28m sky[0m[38;5;203m.[0m[38;5;203m This[0m
+[38;5;203minteraction[0m[1;38;5;28m causes[0m[1;38;5;28m the[0m[1;38;5;28m light[0m[1;38;5;28m to[0m[1;38;5;28m bend[0m[1;38;5;28m or[0m[1;38;5;28m reflect[0m[38;5;203m,[0m[38;5;203m creating[0m[38;5;203m a[0m[38;5;203m colorful[0m[1;38;5;28m arc[0m[1;38;5;28m across[0m[1;38;5;28m the[0m[1;38;5;28m sky[0m[1;38;5;28m in[0m[38;5;203m a[0m
+[1;38;5;28mparticular[0m[1;38;5;28m order[0m[38;5;203m depending[0m[1;38;5;28m on[0m[1;38;5;28m the[0m[38;5;203m position[0m[1;38;5;28m of[0m[1;38;5;28m the[0m[38;5;203m sun[0m[1;38;5;28m relative[0m[1;38;5;28m to[0m[1;38;5;28m the[0m[1;38;5;28m droplets[0m[38;5;203m.[0m[1;38;5;28m  [0m
 
-Gravity has been extensively studied in physics and has been confirmed through numerous experiments and observations. It is an essential component of the overall structure and stability of the universe, playing a critical role in the formation and evolution of galaxies, stars, and other cosmic structures.
+[1;38;5;28mThe[0m[1;38;5;28m colors[0m[1;38;5;28m usually[0m[1;38;5;28m form[0m[1;38;5;28m in[0m[1;38;5;28m sequence[0m[38;5;203m:[0m[1;38;5;28m red[0m[1;38;5;28m at[0m[1;38;5;28m the[0m[38;5;203m top[0m[38;5;203m,[0m[38;5;203m violet[0m[1;38;5;28m at[0m[1;38;5;28m the[0m[1;38;5;28m bottom[0m[38;5;203m,[0m[38;5;203m with[0m[1;38;5;28m pink[0m[38;5;203m and[0m[38;5;203m yellow[0m
+[38;5;203msometimes[0m[1;38;5;28m accompanying[0m[38;5;203m them[0m[38;5;203m.[0m[1;38;5;28m Rain[0m[1;38;5;28mbows[0m[1;38;5;28m are[0m[38;5;203m commonly[0m[38;5;203m seen[0m[1;38;5;28m in[0m[38;5;203m warm[0m[38;5;203m weather[0m[1;38;5;28m or[0m[1;38;5;28m in[0m[38;5;203m regions[0m[38;5;203m with[0m
+[38;5;203mabundant[0m[38;5;203m rain[0m[38;5;203m,[0m[38;5;203m and[0m[38;5;203m they[0m[1;38;5;28m are[0m[38;5;203m often[0m[38;5;203m associated[0m[38;5;203m with[0m[38;5;203m rain[0m[1;38;5;28mbows[0m[38;5;203m seen[0m[1;38;5;28m during[0m[1;38;5;28m sunset[0m[1;38;5;28m or[0m[38;5;203m early[0m[38;5;203m evening[0m[38;5;203m.[0m
 
-=== plain output (baseline) ===
-Gravity is a fundamental force of nature that attracts two objects with mass toward each other. It is a universal force that governs the motion of planets, stars, and other celestial bodies, as well as the behavior of objects on Earth. Gravity is responsible for the orbits of planets around the Sun, the tides on Earth, and the stability of the Earth's orbit around the Sun.
 
-In physics, gravity is described by Newton's law of universal gravitation, which states that every mass attracts every other mass with a force proportional to the product of their masses and inversely proportional to the square of the distance between them. This law explains many phenomena, including the motion of comets, asteroids, and planets, as well as the behavior of objects in space.
+[1;38;5;28mWould[0m[1;38;5;28m you[0m[38;5;203m like[0m[1;38;5;28m me[0m[1;38;5;28m to[0m[38;5;203m explain[0m[38;5;203m how[0m[1;38;5;28m scientists[0m[1;38;5;28m measure[0m[1;38;5;28m the[0m[1;38;5;28m angle[0m[1;38;5;28m of[0m[38;5;203m a[0m[38;5;203m rainbow[0m[1;38;5;28m?[0m
+```
 
-Gravity also plays a crucial role in the formation of galaxies and the structure of the universe on large scales. It is a key factor in the way stars form and evolve, and it continues to shape the cos
+**⬜ Plain output** (baseline, no watermark)
 
-=== detection ===
-watermarked, correct key  : Hash(568/1000 frac=0.568 z=+4.3)
-watermarked, wrong key    : Hash(489/1000 frac=0.489 z=-0.7)
-negative-seed, correct key: Hash(468/910 frac=0.514 z=+0.9)
-plain, correct key        : Hash(500/1000 frac=0.500 z=+0.0)
+```ansi
+[38;5;203mA[0m[38;5;203m rainbow[0m[1;38;5;28m is[0m[38;5;203m a[0m[1;38;5;28m natural[0m[1;38;5;28m phenomenon[0m[1;38;5;28m that[0m[1;38;5;28m occurs[0m[38;5;203m when[0m[1;38;5;28m sunlight[0m[38;5;203m interacts[0m[38;5;203m with[0m[38;5;203m water[0m[1;38;5;28m droplets[0m[1;38;5;28m in[0m
+[1;38;5;28mthe[0m[38;5;203m atmosphere[0m[38;5;203m.[0m[38;5;203m It[0m[38;5;203m appears[0m[38;5;203m as[0m[38;5;203m a[0m[38;5;203m vibrant[0m[1;38;5;28m arc[0m[1;38;5;28m of[0m[1;38;5;28m colors[0m[38;5;203m,[0m[38;5;203m typically[0m[1;38;5;28m in[0m[1;38;5;28m the[0m[1;38;5;28m sky[0m[38;5;203m,[0m[38;5;203m caused[0m[38;5;203m by[0m[1;38;5;28m the[0m[38;5;203m ref[0m
+[38;5;203mraction[0m[38;5;203m,[0m[38;5;203m reflection[0m[38;5;203m,[0m[38;5;203m and[0m[1;38;5;28m dispersion[0m[1;38;5;28m of[0m[1;38;5;28m light[0m[38;5;203m.[0m[38;5;203m The[0m[1;38;5;28m colors[0m[1;38;5;28m usually[0m[1;38;5;28m appear[0m[1;38;5;28m in[0m[38;5;203m a[0m[1;38;5;28m sequence[0m[38;5;203m:[0m[1;38;5;28m red[0m[1;38;5;28m at[0m
+[1;38;5;28mthe[0m[38;5;203m top[0m[38;5;203m,[0m[1;38;5;28m orange[0m[1;38;5;28m at[0m[1;38;5;28m the[0m[1;38;5;28m middle[0m[38;5;203m,[0m[38;5;203m yellow[0m[1;38;5;28m at[0m[1;38;5;28m the[0m[1;38;5;28m center[0m[38;5;203m,[0m[1;38;5;28m green[0m[1;38;5;28m at[0m[1;38;5;28m the[0m[1;38;5;28m bottom[0m[38;5;203m,[0m[38;5;203m and[0m[38;5;203m finally[0m[38;5;203m blue[0m[1;38;5;28m at[0m
+[1;38;5;28mthe[0m[1;38;5;28m bottom[0m[38;5;203m.[0m
 
-=== hash across splits of watermarked text ===
-from tok | seed                             wrong seed                      
-      20 | Hash(522/900 frac=0.580 z=+4.8) Hash(437/900 frac=0.486 z=-0.9)
-      34 | Hash(476/830 frac=0.573 z=+4.2) Hash(401/830 frac=0.483 z=-1.0)
-      58 | Hash(416/710 frac=0.586 z=+4.6) Hash(333/710 frac=0.469 z=-1.7)
-      77 | Hash(359/615 frac=0.584 z=+4.2) Hash(283/615 frac=0.460 z=-2.0)
-     104 | Hash(291/480 frac=0.606 z=+4.7) Hash(221/480 frac=0.460 z=-1.7)
-     131 | Hash(201/345 frac=0.583 z=+3.1) Hash(170/345 frac=0.493 z=-0.3)
-     151 | Hash(141/245 frac=0.576 z=+2.4) Hash(123/245 frac=0.502 z=+0.1)
-     174 | Hash(81/130 frac=0.623 z=+2.8) Hash(60/130 frac=0.462 z=-0.9)
+[38;5;203mR[0m[38;5;203main[0m[1;38;5;28mbows[0m[1;38;5;28m are[0m[1;38;5;28m formed[0m[38;5;203m when[0m[1;38;5;28m sunlight[0m[1;38;5;28m enters[0m[38;5;203m a[0m[38;5;203m small[0m[38;5;203m water[0m[38;5;203m dro[0m[38;5;203mplet[0m[38;5;203m,[0m[1;38;5;28m which[0m[1;38;5;28m causes[0m[1;38;5;28m the[0m[1;38;5;28m light[0m[1;38;5;28m to[0m[1;38;5;28m bend[0m
+[38;5;203m([0m[1;38;5;28mref[0m[1;38;5;28mract[0m[38;5;203m)[0m[38;5;203m as[0m[1;38;5;28m it[0m[38;5;203m passes[0m[1;38;5;28m through[0m[1;38;5;28m the[0m[38;5;203m dro[0m[38;5;203mplet[0m[38;5;203m.[0m[38;5;203m The[0m[1;38;5;28m light[0m[1;38;5;28m then[0m[38;5;203m reflects[0m[38;5;203m off[0m[1;38;5;28m the[0m[1;38;5;28m inner[0m[1;38;5;28m surface[0m[1;38;5;28m of[0m
+[1;38;5;28mthe[0m[38;5;203m dro[0m[38;5;203mplet[0m[38;5;203m and[0m[38;5;203m ref[0m[1;38;5;28mracts[0m[38;5;203m again[0m[38;5;203m as[0m[1;38;5;28m it[0m[1;38;5;28m ex[0m[38;5;203mits[0m[38;5;203m,[0m[38;5;203m creating[0m[1;38;5;28m the[0m[38;5;203m colorful[0m[1;38;5;28m arc[0m[38;5;203m.[0m[38;5;203m The[0m[1;38;5;28m angle[0m[1;38;5;28m at[0m[1;38;5;28m which[0m[1;38;5;28m the[0m
+[1;38;5;28mlight[0m[1;38;5;28m is[0m[38;5;203m ref[0m[38;5;203mracted[0m[38;5;203m and[0m[38;5;203m reflected[0m[38;5;203m determines[0m[1;38;5;28m the[0m[1;38;5;28m colors[0m[38;5;203m visible[0m[1;38;5;28m in[0m[38;5;203m a[0m[38;5;203m rainbow[0m[38;5;203m.[0m
 
-=== hash across splits of negative-seed text ===
-from tok | seed                             wrong seed                      
-      17 | Hash(426/825 frac=0.516 z=+0.9) Hash(494/825 frac=0.599 z=+5.7)
-      41 | Hash(361/705 frac=0.512 z=+0.6) Hash(422/705 frac=0.599 z=+5.2)
-      56 | Hash(318/630 frac=0.505 z=+0.2) Hash(378/630 frac=0.600 z=+5.0)
-      97 | Hash(211/425 frac=0.496 z=-0.1) Hash(249/425 frac=0.586 z=+3.5)
-     127 | Hash(138/275 frac=0.502 z=+0.1) Hash(162/275 frac=0.589 z=+3.0)
-     147 | Hash(86/175 frac=0.491 z=-0.2) Hash(98/175 frac=0.560 z=+1.6)
+[38;5;203mR[0m[38;5;203main[0m[1;38;5;28mbows[0m[38;5;203m can[0m[1;38;5;28m be[0m[38;5;203m seen[0m[38;5;203m from[0m[1;38;5;28m various[0m[1;38;5;28m locations[0m[38;5;203m,[0m[1;38;5;28m including[0m[1;38;5;28m the[0m[38;5;203m ground[0m[38;5;203m,[0m[1;38;5;28m in[0m[1;38;5;28m the[0m[1;38;5;28m sky[0m[38;5;203m,[0m[1;38;5;28m or[0m[1;38;5;28m even[0m[1;38;5;28m on[0m[38;5;203m water[0m
+[38;5;203msurfaces[0m[38;5;203m like[0m[38;5;203m lakes[0m[1;38;5;28m or[0m[1;38;5;28m oceans[0m[38;5;203m.[0m[38;5;203m They[0m[1;38;5;28m are[0m[38;5;203m a[0m[1;38;5;28m beautiful[0m[1;38;5;28m natural[0m[38;5;203m spectacle[0m[1;38;5;28m that[0m[38;5;203m can[0m[1;38;5;28m be[0m[1;38;5;28m observed[0m[38;5;203m by[0m
+[1;38;5;28manyone[0m[38;5;203m with[0m
+```
 
-=== hash across splits of plain text ===
-from tok | seed                             wrong seed                      
-      19 | Hash(457/905 frac=0.505 z=+0.3) Hash(478/905 frac=0.528 z=+1.7)
-      49 | Hash(379/755 frac=0.502 z=+0.1) Hash(405/755 frac=0.536 z=+2.0)
-      80 | Hash(302/600 frac=0.503 z=+0.2) Hash(316/600 frac=0.527 z=+1.3)
-     128 | Hash(175/360 frac=0.486 z=-0.5) Hash(183/360 frac=0.508 z=+0.3)
-     156 | Hash(106/220 frac=0.482 z=-0.5) Hash(118/220 frac=0.536 z=+1.1)
-     180 | Hash(44/100 frac=0.440 z=-1.2) Hash(53/100 frac=0.530 z=+0.6)
+#### SynthID tournament watermark — [`notebook_watermark_synthid.ipynb`](notebooks/notebook_watermark_synthid.ipynb)
+
+Prompt: *"What is gravity?"* · seed `a seed` · 5 layers · 2 competitors/match · top-k 20 · top-p 0.95
+
+Color encodes **hit strength** — how many of the 5 layers score the token green
+(viridis scale, approximated to the nearest terminal color):
+
+```ansi
+hits=0 [38;5;53m███[0m #440154   hits=1 [38;5;54m███[0m #462a78   hits=2 [38;5;60m███[0m #37588a
+hits=3 [38;5;30m███[0m #259488   hits=4 [38;5;77m███[0m #68c95b   hits=5 [38;5;220m███[0m #fde724
+```
+
+**🟩 Watermarked output**
+
+```ansi
+[38;5;30mG[0m[38;5;30mrav[0m[38;5;54mity[0m[38;5;54m is[0m[38;5;60m a[0m[38;5;30m fundamental[0m[38;5;77m force[0m[38;5;77m of[0m[38;5;30m nature[0m[38;5;77m that[0m[38;5;77m acts[0m[38;5;60m between[0m[38;5;54m any[0m[38;5;54m two[0m[38;5;77m objects[0m[38;5;77m with[0m[38;5;30m mass[0m[38;5;30m,[0m[38;5;77m pulling[0m
+[38;5;60mthem[0m[38;5;60m together[0m[38;5;60m.[0m[38;5;30m According[0m[38;5;30m to[0m[38;5;77m Newton[0m[38;5;30m's[0m[38;5;30m law[0m[38;5;77m of[0m[38;5;60m universal[0m[38;5;77m grav[0m[38;5;60mitation[0m[38;5;30m,[0m[38;5;30m this[0m[38;5;220m attraction[0m[38;5;77m arises[0m[38;5;60m from[0m
+[38;5;30mthe[0m[38;5;30m inverse[0m[38;5;60m-square[0m[38;5;54m relationship[0m[38;5;60m between[0m[38;5;30m mass[0m[38;5;60m and[0m[38;5;30m distance[0m[38;5;30m,[0m[38;5;60m where[0m[38;5;77m stronger[0m[38;5;54m gravity[0m[38;5;30m results[0m[38;5;60m in[0m
+[38;5;60mgreater[0m[38;5;220m attraction[0m[38;5;60m.[0m[38;5;30m In[0m[38;5;60m other[0m[38;5;60m systems[0m[38;5;30m,[0m[38;5;54m gravity[0m[38;5;30m could[0m[38;5;77m arise[0m[38;5;60m from[0m[38;5;30m mass[0m[38;5;30m as[0m[38;5;77mymmet[0m[38;5;77mries[0m[38;5;30m or[0m[38;5;77m even[0m[38;5;30m energy[0m
+[38;5;220mfields[0m[38;5;30m,[0m[38;5;30m as[0m[38;5;77m described[0m[38;5;30m by[0m[38;5;60m some[0m[38;5;60m theoretical[0m[38;5;60m physics[0m[38;5;30m ideas[0m[38;5;30m,[0m[38;5;30m though[0m[38;5;77m it[0m[38;5;60m has[0m[38;5;30m not[0m[38;5;60m been[0m[38;5;60m directly[0m
+[38;5;54mobserved[0m[38;5;30m as[0m[38;5;77m it[0m[38;5;220m was[0m[38;5;60m formulated[0m[38;5;77m for[0m[38;5;77m gravitational[0m[38;5;220m attraction[0m[38;5;60m.[0m
+```
+
+**⬜ Negative-seed output** (seed `negative key`, evaluated against `a seed`)
+
+```ansi
+[38;5;30mG[0m[38;5;30mrav[0m[38;5;54mity[0m[38;5;54m is[0m[38;5;60m a[0m[38;5;30m fundamental[0m[38;5;77m force[0m[38;5;77m of[0m[38;5;30m nature[0m[38;5;77m that[0m[38;5;60m pulls[0m[38;5;54m two[0m[38;5;77m objects[0m[38;5;53m toward[0m[38;5;30m each[0m[38;5;60m other[0m[38;5;60m.[0m[38;5;30m It[0m[38;5;54m causes[0m
+[38;5;77mmatter[0m[38;5;30m to[0m[38;5;54m be[0m[38;5;54m attracted[0m[38;5;30m to[0m[38;5;30m each[0m[38;5;60m other[0m[38;5;30m,[0m[38;5;54m resulting[0m[38;5;60m in[0m[38;5;77m gravitational[0m[38;5;220m attraction[0m[38;5;60m between[0m[38;5;54m any[0m[38;5;54m two[0m
+[38;5;54mmasses[0m[38;5;30m,[0m[38;5;77m even[0m[38;5;77m if[0m[38;5;77m they[0m[38;5;30m are[0m[38;5;30m vastly[0m[38;5;30m different[0m[38;5;60m in[0m[38;5;54m size[0m[38;5;60m.[0m[38;5;60m [0m
+
+[38;5;30mG[0m[38;5;30mrav[0m[38;5;54mity[0m[38;5;54m is[0m[38;5;77m described[0m[38;5;30m by[0m[38;5;54m Einstein[0m[38;5;30m's[0m[38;5;77m theory[0m[38;5;77m of[0m[38;5;30m general[0m[38;5;60m relativity[0m[38;5;30m,[0m[38;5;53m which[0m[38;5;60m shows[0m[38;5;77m that[0m[38;5;30m mass[0m[38;5;77m curves[0m
+[38;5;60mspac[0m[38;5;30metime[0m[38;5;30m,[0m[38;5;60m and[0m[38;5;77m objects[0m[38;5;77m travel[0m[38;5;30m along[0m[38;5;77m ge[0m[38;5;60modes[0m[38;5;54mics[0m[38;5;30m ([0m[38;5;60mshort[0m[38;5;77mest[0m[38;5;30m paths[0m[38;5;77m)[0m[38;5;60m in[0m[38;5;30m this[0m[38;5;60m curved[0m[38;5;60m geometry[0m[38;5;60m.[0m[38;5;30m The[0m
+[38;5;60mstrength[0m[38;5;77m of[0m[38;5;60m a[0m[38;5;77m gravitational[0m[38;5;30m field[0m[38;5;30m,[0m[38;5;30m as[0m[38;5;60m seen[0m[38;5;30m by[0m[38;5;30m Earth[0m[38;5;30m,[0m[38;5;54m can[0m[38;5;54m be[0m[38;5;30m as[0m[38;5;53m weak[0m[38;5;30m as[0m[38;5;30m Earth[0m[38;5;30m's[0m[38;5;54m gravity[0m[38;5;60m but[0m[38;5;54m can[0m
+[38;5;77mvary[0m[38;5;60m from[0m[38;5;60m day[0m[38;5;30m to[0m[38;5;60m day[0m[38;5;77m due[0m[38;5;30m to[0m[38;5;30m Earth[0m[38;5;30m's[0m[38;5;30m mass[0m[38;5;54m distribution[0m[38;5;60m.[0m
+
+[38;5;30mG[0m[38;5;30mrav[0m[38;5;54mity[0m[38;5;60m has[0m[38;5;77m important[0m[38;5;30m effects[0m[38;5;53m on[0m[38;5;30m everything[0m[38;5;60m from[0m[38;5;30m the[0m[38;5;30m t[0m[38;5;30mipping[0m[38;5;77m of[0m[38;5;30m Earth[0m[38;5;30m to[0m[38;5;30m the[0m[38;5;77m motion[0m[38;5;77m of[0m[38;5;30m planets[0m
+[38;5;60min[0m[38;5;30m our[0m[38;5;30m solar[0m[38;5;60m system[0m[38;5;60m and[0m[38;5;30m the[0m[38;5;60m way[0m[38;5;60m astronauts[0m[38;5;53m on[0m[38;5;54m Mars[0m[38;5;77m experience[0m[38;5;220m time[0m[38;5;60m and[0m[38;5;30m distance[0m[38;5;60m from[0m[38;5;30m Earth[0m[38;5;60m.[0m
+```
+
+**⬜ Plain output** (baseline, no watermark)
+
+```ansi
+[38;5;30mG[0m[38;5;30mrav[0m[38;5;54mity[0m[38;5;54m is[0m[38;5;60m a[0m[38;5;30m fundamental[0m[38;5;77m force[0m[38;5;77m of[0m[38;5;30m nature[0m[38;5;77m that[0m[38;5;54m attracts[0m[38;5;54m two[0m[38;5;77m objects[0m[38;5;77m with[0m[38;5;30m mass[0m[38;5;53m toward[0m[38;5;30m each[0m[38;5;60m other[0m[38;5;60m.[0m
+[38;5;30mIt[0m[38;5;54m is[0m[38;5;60m a[0m[38;5;60m universal[0m[38;5;77m force[0m[38;5;77m that[0m[38;5;60m govern[0m[38;5;60ms[0m[38;5;30m the[0m[38;5;77m motion[0m[38;5;77m of[0m[38;5;30m planets[0m[38;5;30m,[0m[38;5;60m stars[0m[38;5;30m,[0m[38;5;60m and[0m[38;5;60m other[0m[38;5;54m celestial[0m[38;5;77m bodies[0m[38;5;30m,[0m
+[38;5;30mas[0m[38;5;30m well[0m[38;5;30m as[0m[38;5;30m the[0m[38;5;54m behavior[0m[38;5;77m of[0m[38;5;77m objects[0m[38;5;53m on[0m[38;5;30m Earth[0m[38;5;60m.[0m[38;5;60m Grav[0m[38;5;54mity[0m[38;5;54m is[0m[38;5;60m responsible[0m[38;5;77m for[0m[38;5;30m the[0m[38;5;54m orbits[0m[38;5;77m of[0m[38;5;30m planets[0m
+[38;5;77maround[0m[38;5;30m the[0m[38;5;30m Sun[0m[38;5;30m,[0m[38;5;30m the[0m[38;5;30m t[0m[38;5;77mides[0m[38;5;53m on[0m[38;5;30m Earth[0m[38;5;30m,[0m[38;5;60m and[0m[38;5;30m the[0m[38;5;54m stability[0m[38;5;77m of[0m[38;5;30m the[0m[38;5;30m Earth[0m[38;5;30m's[0m[38;5;54m orbit[0m[38;5;77m around[0m[38;5;30m the[0m[38;5;30m Sun[0m[38;5;60m.[0m
+
+[38;5;30mIn[0m[38;5;60m physics[0m[38;5;30m,[0m[38;5;54m gravity[0m[38;5;54m is[0m[38;5;77m described[0m[38;5;30m by[0m[38;5;77m Newton[0m[38;5;30m's[0m[38;5;30m law[0m[38;5;77m of[0m[38;5;60m universal[0m[38;5;77m grav[0m[38;5;60mitation[0m[38;5;30m,[0m[38;5;53m which[0m[38;5;54m states[0m[38;5;77m that[0m
+[38;5;54mevery[0m[38;5;30m mass[0m[38;5;54m attracts[0m[38;5;54m every[0m[38;5;60m other[0m[38;5;30m mass[0m[38;5;77m with[0m[38;5;60m a[0m[38;5;77m force[0m[38;5;54m proportional[0m[38;5;30m to[0m[38;5;30m the[0m[38;5;54m product[0m[38;5;77m of[0m[38;5;30m their[0m[38;5;54m masses[0m
+[38;5;60mand[0m[38;5;30m invers[0m[38;5;30mely[0m[38;5;54m proportional[0m[38;5;30m to[0m[38;5;30m the[0m[38;5;54m square[0m[38;5;77m of[0m[38;5;30m the[0m[38;5;30m distance[0m[38;5;60m between[0m[38;5;60m them[0m[38;5;60m.[0m[38;5;30m This[0m[38;5;30m law[0m[38;5;77m explains[0m[38;5;60m many[0m
+[38;5;77mphenomena[0m[38;5;30m,[0m[38;5;77m including[0m[38;5;30m the[0m[38;5;77m motion[0m[38;5;77m of[0m[38;5;30m com[0m[38;5;60mets[0m[38;5;30m,[0m[38;5;30m asteroids[0m[38;5;30m,[0m[38;5;60m and[0m[38;5;30m planets[0m[38;5;30m,[0m[38;5;30m as[0m[38;5;30m well[0m[38;5;30m as[0m[38;5;30m the[0m[38;5;54m behavior[0m[38;5;77m of[0m
+[38;5;77mobjects[0m[38;5;60m in[0m[38;5;60m space[0m[38;5;60m.[0m
+
+[38;5;30mG[0m[38;5;30mrav[0m[38;5;54mity[0m[38;5;60m also[0m[38;5;30m plays[0m[38;5;60m a[0m[38;5;220m crucial[0m[38;5;30m role[0m[38;5;60m in[0m[38;5;30m the[0m[38;5;54m formation[0m[38;5;77m of[0m[38;5;77m galaxies[0m[38;5;60m and[0m[38;5;30m the[0m[38;5;220m structure[0m[38;5;77m of[0m[38;5;30m the[0m
+[38;5;54muniverse[0m[38;5;53m on[0m[38;5;60m large[0m[38;5;30m scales[0m[38;5;60m.[0m[38;5;30m It[0m[38;5;54m is[0m[38;5;60m a[0m[38;5;77m key[0m[38;5;54m factor[0m[38;5;60m in[0m[38;5;30m the[0m[38;5;60m way[0m[38;5;60m stars[0m[38;5;60m form[0m[38;5;60m and[0m[38;5;60m evolve[0m[38;5;30m,[0m[38;5;60m and[0m[38;5;77m it[0m[38;5;60m continues[0m
+[38;5;30mto[0m[38;5;30m shape[0m[38;5;30m the[0m[38;5;30m cos[0m
 ```
 
 ## Notes

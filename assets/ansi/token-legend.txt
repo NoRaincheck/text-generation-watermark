@@ -1,0 +1,1 @@
+[1;38;5;28mgreen[0m = green-list (key match)   [38;5;203mred[0m = red-list (no match)
